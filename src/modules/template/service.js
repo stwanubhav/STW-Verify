@@ -21,6 +21,8 @@ const ALLOWED_PLACEHOLDERS = ['{otp}', '{app_name}', '{ttl_minutes}'];
  * Editable email template. Persisted via KV (file locally, Upstash on
  * Vercel) so changes survive cold starts.
  */
+const { storageUnavailable } = require('../../lib/errors');
+
 class TemplateService {
   constructor({ kv, key = 'message-template' }) {
     this.kv = kv;
@@ -64,14 +66,24 @@ class TemplateService {
       }
     }
 
-    await this.kv.set(this.key, clean);
+    try {
+      await this.kv.set(this.key, clean);
+    } catch (err) {
+      if (err.code === 'KV_UNAVAILABLE') throw err;
+      throw storageUnavailable('save template');
+    }
     this._cache = clean;
     return clean;
   }
 
   async reset() {
     const clean = { ...DEFAULT_TEMPLATE };
-    await this.kv.set(this.key, clean);
+    try {
+      await this.kv.set(this.key, clean);
+    } catch (err) {
+      if (err.code === 'KV_UNAVAILABLE') throw err;
+      throw storageUnavailable('reset template');
+    }
     this._cache = clean;
     return clean;
   }

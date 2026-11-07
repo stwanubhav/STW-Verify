@@ -69,4 +69,33 @@ class RedisKV {
   }
 }
 
-module.exports = { FileKV, RedisKV };
+/**
+ * Used when a redis backend is requested but no Upstash token is configured.
+ * Every op fails with a clear, classifiable message instead of a generic 500.
+ */
+class FailingKV {
+  constructor(message) {
+    this.message = message;
+  }
+
+  _fail() {
+    const err = new Error(this.message);
+    err.code = 'KV_UNAVAILABLE';
+    err.status = 503;
+    throw err;
+  }
+
+  async get() {
+    this._fail();
+  }
+
+  async set() {
+    this._fail();
+  }
+
+  async delete() {
+    this._fail();
+  }
+}
+
+module.exports = { FileKV, RedisKV, FailingKV };

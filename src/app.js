@@ -11,7 +11,8 @@ const { TemplateService } = require('./modules/template/service');
 const { SmtpCredentialsService } = require('./modules/smtp/credentials');
 const { AuthService } = require('./modules/auth/service');
 const { getOrCreateKey } = require('./lib/crypto');
-const { FileKV, RedisKV } = require('./lib/kv');
+const logger = require('./lib/logger');
+const { FileKV, RedisKV, FailingKV } = require('./lib/kv');
 const { otpRoutes } = require('./modules/otp/routes');
 const { templateRoutes } = require('./modules/template/routes');
 const { smtpRoutes } = require('./modules/smtp/routes');
@@ -25,6 +26,7 @@ function buildStore(config) {
       const { UpstashOtpStore } = require('./modules/otp/upstashStore');
       return new UpstashOtpStore({ url: config.upstashUrl, token: config.upstashToken });
     }
+    logger.warn('STORE=redis but no UPSTASH token; using local ioredis client. On Vercel set UPSTASH_REDIS_REST_TOKEN.');
     const { RedisOtpStore } = require('./modules/otp/redisStore');
     return new RedisOtpStore({ url: config.redisUrl });
   }
@@ -33,6 +35,12 @@ function buildStore(config) {
 
 function buildKv(config) {
   if (config.kvBackend === 'redis') {
+    if (!config.upstashToken) {
+      logger.warn('KV_BACKEND=redis but UPSTASH_REDIS_REST_TOKEN is not set. Settings writes will fail.');
+      return new FailingKV(
+        'Settings storage unavailable: UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not configured on this server.',
+      );
+    }
     const { Redis } = require('@upstash/redis');
     const redis = new Redis({ url: config.upstashUrl, token: config.upstashToken });
     return new RedisKV(redis);

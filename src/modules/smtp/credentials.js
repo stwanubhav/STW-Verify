@@ -1,6 +1,7 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
 const { encryptSecret, decryptSecret } = require('../../lib/crypto');
+const { storageUnavailable } = require('../../lib/errors');
 
 /**
  * SMTP sender credentials.
@@ -95,7 +96,12 @@ class SmtpCredentialsService {
     }
 
     const doc = { emailUser: user, emailPass: encryptSecret(pass, this.secretKey) };
-    await this.kv.set(this.key, doc);
+    try {
+      await this.kv.set(this.key, doc);
+    } catch (err) {
+      if (err.code === 'KV_UNAVAILABLE') throw err;
+      throw storageUnavailable('save SMTP credentials');
+    }
     this._cache = { emailUser: user, emailPass: pass, source: 'file' };
 
     if (this.syncEnv) this._writeEnvUser(user);

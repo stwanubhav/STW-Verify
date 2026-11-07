@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { hashPassword, verifyPassword } = require('../../lib/crypto');
+const { storageUnavailable } = require('../../lib/errors');
 
 /**
  * Admin authentication for the settings panel.
@@ -143,7 +144,12 @@ class AuthService {
 
     const { salt, hash } = hashPassword(pass);
     const doc = { email, salt, passwordHash: hash, configured: true };
-    await this.kv.set(this.key, doc);
+    try {
+      await this.kv.set(this.key, doc);
+    } catch (err) {
+      if (err.code === 'KV_UNAVAILABLE') throw err;
+      throw storageUnavailable('save admin credentials');
+    }
     this._cache = doc;
     return { email };
   }

@@ -12,6 +12,8 @@ const int = (v, d) => {
 };
 
 function loadConfig(env = process.env) {
+  const isVercel = env.VERCEL === '1';
+
   return {
     port: int(env.PORT, 3000),
     baseUrl: env.BASE_URL || `http://localhost:${int(env.PORT, 3000)}`,
@@ -68,7 +70,9 @@ function loadConfig(env = process.env) {
       path.join(__dirname, '..', '..', 'data', '.secret.key'),
 
     // Settings persistence backend: "file" (dev/local) or "redis" (Vercel).
-    kvBackend: env.KV_BACKEND || (env.REDIS_URL ? 'redis' : 'file'),
+    // On Vercel, default to Upstash Redis (filesystem is read-only).
+    kvBackend: env.KV_BACKEND || (isVercel ? 'redis' : env.REDIS_URL ? 'redis' : 'file'),
+    isVercel,
     kvDir: env.KV_DIR || path.join(__dirname, '..', '..', 'data', 'kv'),
     upstashUrl: env.UPSTASH_REDIS_REST_URL || env.REDIS_URL || 'https://example.upstash.io',
     upstashToken: env.UPSTASH_REDIS_REST_TOKEN || '',

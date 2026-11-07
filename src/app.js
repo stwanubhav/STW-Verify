@@ -112,8 +112,23 @@ function createApp(overrides = {}) {
   app.use('/api/template', requireAuthApi, templateRoutes());
   app.use('/api/smtp', requireAuthApi, smtpRoutes());
 
+  // Brand assets (logo, favicon)
+  app.use('/brand', express.static(path.join(__dirname, '..', 'public', 'brand'), { maxAge: '7d' }));
+  app.get('/favicon.ico', (req, res) =>
+    res.sendFile(path.join(__dirname, '..', 'public', 'brand', 'favicon.svg')),
+  );
+
   // Pages
-  app.use('/login', express.static(path.join(__dirname, '..', 'public', 'login.html')));
+  app.get('/', (req, res) => {
+    const signedIn = app.locals.authService.isValid(req.cookies && req.cookies.stw_session);
+    res.redirect(signedIn ? '/settings' : '/login');
+  });
+  app.get('/login', (req, res, next) => {
+    if (app.locals.authService.isValid(req.cookies && req.cookies.stw_session)) {
+      return res.redirect('/settings');
+    }
+    return res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+  });
   app.use('/settings', requireAuthPage, express.static(path.join(__dirname, '..', 'public', 'settings.html')));
   app.use('/docs', express.static(path.join(__dirname, '..', 'public', 'docs.html')));
 

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64" role="img" aria-label="STW-Verify">
+  <defs>
+    <linearGradient id="wGreen" x1="4" y1="2" x2="60" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#17A374"/>
+      <stop offset="1" stop-color="#0A5F44"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon -->
+  <rect width="64" height="64" rx="16" fill="url(#wGreen)"/>
+  <path d="M32 13.5 47.5 19v12.4c0 8.7-6.2 16-15.5 19.3-9.3-3.3-15.5-10.6-15.5-19.3V19L32 13.5Z"
+        fill="#FFFFFF" opacity=".15"/>
+  <path d="M32 13.5 47.5 19v12.4c0 8.7-6.2 16-15.5 19.3-9.3-3.3-15.5-10.6-15.5-19.3V19L32 13.5Z"
+        fill="none" stroke="#EAFBF4" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="m25.6 31.8 4.9 4.9 10-10.3" fill="none" stroke="#EAFBF4" stroke-width="3.8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wordmark -->
+  <text x="80" y="41" font-family="'Segoe UI',system-ui,-apple-system,Arial,sans-serif"
+        font-size="27" font-weight="700" letter-spacing="-0.6" fill="#131A21">STW<tspan fill="#0B6E4F">-Verify</tspan></text>
+</svg>

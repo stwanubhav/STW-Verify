@@ -2,10 +2,10 @@
   "name": "stw-verify",
   "version": "1.0.0",
   "description": "STW-Verify — secure OTP generation, email delivery and verification API",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "node --test"
   },
   "engines": {
